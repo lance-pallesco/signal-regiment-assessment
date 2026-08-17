@@ -57,9 +57,7 @@ export const personnelSchema = z.object({
     .min(2, "Full name must be at least 2 characters."),
   serialNumber: z
     .string()
-    .trim()
-    .min(3, "Serial Number is required.")
-    .regex(/^[A-Za-z0-9-]+$/, "Serial Number can only contain letters, numbers, and hyphens."),
+    .optional(),
   rank: z.string().min(1, "Military Rank is required."),
   rankCategory: z.enum(["Officer", "Enlisted Personnel"]).default("Enlisted Personnel"),
   birthday: z.coerce.date({
@@ -99,10 +97,6 @@ export const personnelSchema = z.object({
 
 export type PersonnelInput = z.infer<typeof personnelSchema>;
 
-/**
- * Generate a standardized unique Serial Number sequence
- * Pattern: SR-YYYY-XXXX (e.g. SR-2026-0042 or random 4-digit code)
- */
 export function generateSerialNumber(seq?: number): string {
   const currentYear = new Date().getFullYear();
   if (typeof seq === "number") {
@@ -113,14 +107,9 @@ export function generateSerialNumber(seq?: number): string {
   return `SR-${currentYear}-${randomSuffix}`;
 }
 
-/**
- * Extracts initials from soldier full name.
- * Example: "Danica Reyes Mercado" -> "DM"
- */
 export function getInitials(name: string): string {
   if (!name || !name.trim()) return "SR";
   
-  // Strip common rank prefixes if included in the name string
   const cleanName = name
     .replace(/^(Col\.|Colonel|LTC|MAJ|Major|CPT|Captain|1LT|2LT|CMS|SMS|MSG|TSG|SSG|SGT|Sergeant|CPL|Corporal|PFC|PVT|Private|BGEN)\s+/i, "")
     .trim();
@@ -129,6 +118,5 @@ export function getInitials(name: string): string {
   if (parts.length === 0) return "SR";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
 
-  // First letter of First name + First letter of Last name
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

@@ -87,16 +87,54 @@ export class PersonnelService {
     });
   }
 
+  static async generateNextSerialNumber(): Promise<string> {
+    const currentYear = new Date().getFullYear();
+    const prefix = `SR-${currentYear}-`;
+
+    const records = await prisma.personnel.findMany({
+      where: {
+        serialNumber: {
+          startsWith: prefix,
+        },
+      },
+      select: {
+        serialNumber: true,
+      },
+    });
+
+    let maxSeq = 0;
+    for (const r of records) {
+      const numPart = r.serialNumber.replace(prefix, "");
+      const num = parseInt(numPart, 10);
+      if (!isNaN(num) && num > maxSeq) {
+        maxSeq = num;
+      }
+    }
+
+    if (maxSeq === 0) {
+      const total = await prisma.personnel.count();
+      maxSeq = total;
+    }
+
+    const nextSeq = maxSeq + 1;
+    return `${prefix}${String(nextSeq).padStart(4, "0")}`;
+  }
+
   static async createPersonnel(data: PersonnelInput) {
     const isOfficer = OFFICER_RANKS.some((r) =>
       data.rank.toLowerCase().includes(r.toLowerCase())
     );
     const rankCategory = isOfficer ? "Officer" : "Enlisted Personnel";
 
+    let serialNumber = data.serialNumber?.trim();
+    if (!serialNumber) {
+      serialNumber = await this.generateNextSerialNumber();
+    }
+
     return await prisma.personnel.create({
       data: {
         fullName: data.fullName,
-        serialNumber: data.serialNumber,
+        serialNumber,
         rank: data.rank,
         rankCategory: data.rankCategory || rankCategory,
         birthday: new Date(data.birthday),
@@ -124,7 +162,6 @@ export class PersonnelService {
       where: { id },
       data: {
         fullName: data.fullName,
-        serialNumber: data.serialNumber,
         rank: data.rank,
         rankCategory: data.rankCategory || rankCategory,
         birthday: new Date(data.birthday),
@@ -174,7 +211,6 @@ export class PersonnelService {
       }),
     ]);
 
-    // Aggregate by Rank
     const rankMap = new Map<string, number>();
     for (const p of allPersonnel) {
       rankMap.set(p.rank, (rankMap.get(p.rank) || 0) + 1);
@@ -183,7 +219,6 @@ export class PersonnelService {
       .map(([rank, count]) => ({ rank, count }))
       .sort((a, b) => b.count - a.count);
 
-    // Aggregate by Status
     const statusMap = new Map<string, number>();
     for (const p of allPersonnel) {
       statusMap.set(p.status, (statusMap.get(p.status) || 0) + 1);
@@ -193,7 +228,6 @@ export class PersonnelService {
       count,
     }));
 
-    // Aggregate by Unit
     const unitMap = new Map<string, number>();
     for (const p of allPersonnel) {
       unitMap.set(p.unit, (unitMap.get(p.unit) || 0) + 1);

@@ -51,13 +51,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check duplicate Serial Number
-    const existing = await PersonnelService.getPersonnelBySerialNumber(validation.data.serialNumber);
-    if (existing) {
-      return NextResponse.json(
-        { error: `Personnel with Serial Number '${validation.data.serialNumber}' already exists.` },
-        { status: 409 }
-      );
+    // Check duplicate Serial Number if provided
+    if (validation.data.serialNumber) {
+      const existing = await PersonnelService.getPersonnelBySerialNumber(validation.data.serialNumber);
+      if (existing) {
+        return NextResponse.json(
+          { error: `Personnel with Serial Number '${validation.data.serialNumber}' already exists.` },
+          { status: 409 }
+        );
+      }
     }
 
     const created = await PersonnelService.createPersonnel(validation.data);

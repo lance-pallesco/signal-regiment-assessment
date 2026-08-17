@@ -54,8 +54,8 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // If Serial Number was changed, check if new Serial Number is already taken by another person
-    if (validation.data.serialNumber !== existing.serialNumber) {
+    // If Serial Number was provided and changed, check if new Serial Number is already taken
+    if (validation.data.serialNumber && validation.data.serialNumber !== existing.serialNumber) {
       const duplicate = await PersonnelService.getPersonnelBySerialNumber(validation.data.serialNumber);
       if (duplicate && duplicate.id !== personnelId) {
         return NextResponse.json(

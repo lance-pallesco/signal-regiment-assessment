@@ -90,21 +90,20 @@ export function AppNavbar() {
           {/* Right Section: User & Logout */}
           <div className="hidden md:flex items-center gap-3">
             {user && (
-              <div className="px-3 py-1 rounded-lg bg-muted/40 border border-border text-left">
-                <p className="text-xs font-bold text-foreground leading-tight">{user.name}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {user.role} ({user.username})
-                </p>
-              </div>
+              <span className="text-xs font-semibold text-foreground">
+                {user.name}
+              </span>
             )}
 
+            <div className="h-4 w-px bg-border" />
+
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               onClick={handleLogout}
               title="Logout"
               aria-label="Logout"
-              className="h-8.5 w-8.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-border hover:border-rose-200 dark:hover:border-rose-900/40 cursor-pointer shadow-2xs transition-colors"
+              className="h-8 w-8 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg cursor-pointer transition-colors"
             >
               <LogOut className="h-4 w-4" />
             </Button>

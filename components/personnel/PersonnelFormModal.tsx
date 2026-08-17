@@ -27,12 +27,11 @@ import {
   GENDERS,
   CIVIL_STATUSES,
   OFFICER_RANKS,
-  generateSerialNumber,
   getInitials,
 } from "@/lib/validations/personnel";
 import { Personnel } from "./PersonnelTable";
 import { toast } from "sonner";
-import { Loader2, Upload, Sparkles, X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 
 export interface PersonnelFormModalProps {
   open: boolean;
@@ -92,7 +91,7 @@ export function PersonnelFormModal({
     } else {
       setFormData({
         fullName: "",
-        serialNumber: generateSerialNumber(),
+        serialNumber: "",
         rank: "Private",
         birthday: "1995-01-01",
         gender: "Male",
@@ -109,12 +108,6 @@ export function PersonnelFormModal({
     }
     setErrors({});
   }, [personnelToEdit, open]);
-
-  const handleGenerateSerialNumber = () => {
-    const newSN = generateSerialNumber();
-    setFormData((prev) => ({ ...prev, serialNumber: newSN }));
-    toast.info(`Generated Serial Number: ${newSN}`);
-  };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -164,7 +157,6 @@ export function PersonnelFormModal({
   const validateForm = () => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = "Full name is required.";
-    if (!formData.serialNumber.trim()) errs.serialNumber = "Serial Number is required.";
     if (!formData.phone.trim() || formData.phone.length < 7)
       errs.phone = "Valid contact number is required.";
     if (!formData.email.trim() || !formData.email.includes("@"))
@@ -189,7 +181,6 @@ export function PersonnelFormModal({
 
       const payload = {
         fullName: formData.fullName.trim(),
-        serialNumber: formData.serialNumber.trim(),
         rank: formData.rank,
         rankCategory,
         birthday: new Date(formData.birthday).toISOString(),
@@ -261,8 +252,6 @@ export function PersonnelFormModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          
-          {/* Photo Upload Section */}
           <div className="flex items-center gap-4 p-3 rounded-xl bg-muted/40 border border-border">
             <div className="relative shrink-0">
               {formData.photo ? (
@@ -272,7 +261,7 @@ export function PersonnelFormModal({
                   className="h-12 w-12 rounded-full object-cover ring-1.5 ring-emerald-600 shadow-xs"
                 />
               ) : (
-                <div className="h-12 w-12 rounded-full ring-1 ring-emerald-600/30 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center ring-1.5 ring-emerald-600/30">
+                <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center ring-1.5 ring-emerald-600/30">
                   {getInitials(formData.fullName || "SR")}
                 </div>
               )}
@@ -325,15 +314,12 @@ export function PersonnelFormModal({
             </div>
           </div>
 
-          {/* Section 1: Military Identification */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
               1. Military Identification & Rank
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
-              {/* Full Name */}
-              <div className="space-y-1">
+              <div className="space-y-1 sm:col-span-2">
                 <Label htmlFor="fullName" className="text-xs font-medium">
                   Full Name <span className="text-rose-500">*</span>
                 </Label>
@@ -349,34 +335,6 @@ export function PersonnelFormModal({
                 )}
               </div>
 
-              {/* Serial Number with Auto-generate */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="serialNumber" className="text-xs font-medium">
-                    Serial Number <span className="text-rose-500">*</span>
-                  </Label>
-                  <button
-                    type="button"
-                    onClick={handleGenerateSerialNumber}
-                    className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer flex items-center gap-1"
-                  >
-                    <Sparkles className="h-3 w-3" />
-                    <span>Auto Generate</span>
-                  </button>
-                </div>
-                <Input
-                  id="serialNumber"
-                  value={formData.serialNumber}
-                  onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-                  placeholder="e.g. SR-2026-0001"
-                  className={errors.serialNumber ? "border-rose-500 text-xs font-mono" : "text-xs font-mono"}
-                />
-                {errors.serialNumber && (
-                  <p className="text-[11px] text-rose-500">{errors.serialNumber}</p>
-                )}
-              </div>
-
-              {/* Military Rank */}
               <div className="space-y-1">
                 <Label htmlFor="rank" className="text-xs font-medium">
                   Military Rank <span className="text-rose-500">*</span>
@@ -398,7 +356,6 @@ export function PersonnelFormModal({
                 </Select>
               </div>
 
-              {/* Duty Status */}
               <div className="space-y-1">
                 <Label htmlFor="status" className="text-xs font-medium">
                   Duty Status <span className="text-rose-500">*</span>
@@ -419,18 +376,14 @@ export function PersonnelFormModal({
                   </SelectContent>
                 </Select>
               </div>
-
             </div>
           </div>
 
-          {/* Section 2: Unit Assignment & Position */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
               2. Unit Assignment & Role
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
-              {/* Unit / Battalion */}
               <div className="space-y-1">
                 <Label htmlFor="unit" className="text-xs font-medium">
                   Battalion / Unit Assignment <span className="text-rose-500">*</span>
@@ -452,7 +405,6 @@ export function PersonnelFormModal({
                 </Select>
               </div>
 
-              {/* Position / Designation */}
               <div className="space-y-1">
                 <Label htmlFor="position" className="text-xs font-medium">
                   Designation / Role <span className="text-rose-500">*</span>
@@ -469,7 +421,6 @@ export function PersonnelFormModal({
                 )}
               </div>
 
-              {/* Date of Enlistment */}
               <div className="space-y-1 sm:col-span-2">
                 <Label htmlFor="dateOfEnlistment" className="text-xs font-medium">
                   Date of Enlistment <span className="text-rose-500">*</span>
@@ -482,18 +433,14 @@ export function PersonnelFormModal({
                   className="text-xs"
                 />
               </div>
-
             </div>
           </div>
 
-          {/* Section 3: Personal & Contact Information */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
               3. Personal Details & Contact
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              
-              {/* Birthday */}
               <div className="space-y-1">
                 <Label htmlFor="birthday" className="text-xs font-medium">
                   Birthday <span className="text-rose-500">*</span>
@@ -507,7 +454,6 @@ export function PersonnelFormModal({
                 />
               </div>
 
-              {/* Gender */}
               <div className="space-y-1">
                 <Label htmlFor="gender" className="text-xs font-medium">
                   Gender <span className="text-rose-500">*</span>
@@ -529,7 +475,6 @@ export function PersonnelFormModal({
                 </Select>
               </div>
 
-              {/* Civil Status */}
               <div className="space-y-1">
                 <Label htmlFor="civilStatus" className="text-xs font-medium">
                   Civil Status <span className="text-rose-500">*</span>
@@ -550,11 +495,9 @@ export function PersonnelFormModal({
                   </SelectContent>
                 </Select>
               </div>
-
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              {/* Phone */}
               <div className="space-y-1">
                 <Label htmlFor="phone" className="text-xs font-medium">
                   Contact Phone <span className="text-rose-500">*</span>
@@ -571,7 +514,6 @@ export function PersonnelFormModal({
                 )}
               </div>
 
-              {/* Email */}
               <div className="space-y-1">
                 <Label htmlFor="email" className="text-xs font-medium">
                   Official Email <span className="text-rose-500">*</span>
@@ -589,7 +531,6 @@ export function PersonnelFormModal({
                 )}
               </div>
 
-              {/* Address */}
               <div className="space-y-1 sm:col-span-2">
                 <Label htmlFor="address" className="text-xs font-medium">
                   Residential / Barracks Address <span className="text-rose-500">*</span>
