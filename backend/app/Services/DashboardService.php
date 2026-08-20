@@ -3,12 +3,11 @@
 namespace App\Services;
 
 use App\Models\Personnel;
-use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
     /**
-     * Get summary metric counts.
+     * Get summary metric counts using Eloquent scopes and model counts.
      *
      * @return array<string, int>
      */
@@ -16,72 +15,81 @@ class DashboardService
     {
         return [
             'total'    => Personnel::count(),
-            'active'   => Personnel::where('status', 'Active')->count(),
-            'reserve'  => Personnel::where('status', 'Reserve')->count(),
-            'awol'     => Personnel::where('status', 'AWOL')->count(),
-            'retired'  => Personnel::where('status', 'Retired')->count(),
+            'active'   => Personnel::active()->count(),
+            'reserve'  => Personnel::byStatus('Reserve')->count(),
+            'awol'     => Personnel::byStatus('AWOL')->count(),
+            'retired'  => Personnel::byStatus('Retired')->count(),
         ];
     }
 
     /**
-     * Get rank distribution for bar chart.
+     * Get rank distribution for bar chart using Eloquent collection aggregation.
      *
      * @return array<int, array<string, mixed>>
      */
     public function getRankDistribution(): array
     {
-        return Personnel::select('rank', DB::raw('count(*) as count'))
+        return Personnel::all()
             ->groupBy('rank')
-            ->orderByDesc('count')
-            ->get()
+            ->map(fn ($group, $rank) => [
+                'rank'  => (string) $rank,
+                'count' => $group->count(),
+            ])
+            ->sortByDesc('count')
+            ->values()
             ->toArray();
     }
 
     /**
-     * Get status breakdown for pie/donut chart.
+     * Get status breakdown for pie/donut chart using Eloquent collection aggregation.
      *
      * @return array<int, array<string, mixed>>
      */
     public function getStatusBreakdown(): array
     {
-        return Personnel::select('status', DB::raw('count(*) as count'))
+        return Personnel::all()
             ->groupBy('status')
-            ->get()
+            ->map(fn ($group, $status) => [
+                'status' => (string) $status,
+                'count'  => $group->count(),
+            ])
+            ->values()
             ->toArray();
     }
 
     /**
-     * Get enlistment trends by year for line/area chart.
+     * Get enlistment trends by year using Eloquent date casting and collection grouping.
      *
      * @return array<int, array<string, mixed>>
      */
     public function getEnlistmentTrends(): array
     {
-        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-        $yearExpression = $isPgsql
-            ? "EXTRACT(YEAR FROM date_of_enlistment)::integer as year"
-            : "strftime('%Y', date_of_enlistment) as year";
-
-        return Personnel::select(
-                DB::raw($yearExpression),
-                DB::raw('count(*) as count')
-            )
-            ->groupBy('year')
-            ->orderBy('year')
-            ->get()
+        return Personnel::all()
+            ->groupBy(fn (Personnel $personnel) => (string) $personnel->date_of_enlistment->format('Y'))
+            ->map(fn ($group, $year) => [
+                'year'  => (int) $year,
+                'count' => $group->count(),
+            ])
+            ->sortKeys()
+            ->values()
             ->toArray();
     }
 
     /**
-     * Get gender and civil status distribution.
+     * Get gender and civil status distribution using Eloquent collection aggregation.
      *
      * @return array<int, array<string, mixed>>
      */
     public function getGenderCivilStatus(): array
     {
-        return Personnel::select('gender', 'civil_status', DB::raw('count(*) as count'))
-            ->groupBy('gender', 'civil_status')
-            ->get()
+        return Personnel::all()
+            ->groupBy(fn (Personnel $personnel) => "{$personnel->gender}_{$personnel->civil_status}")
+            ->map(fn ($group) => [
+                'gender'       => $group->first()->gender,
+                'civil_status' => $group->first()->civil_status,
+                'count'        => $group->count(),
+            ])
+            ->values()
             ->toArray();
     }
 }

@@ -5,32 +5,22 @@ namespace App\Services;
 use App\Models\Personnel;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PersonnelService
 {
     /**
-     * Get paginated, filtered personnel list.
+     * Get paginated, filtered personnel list using Eloquent model scopes.
      *
      * @param array<string, mixed> $filters
      */
     public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $operator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
-
         return Personnel::query()
-            ->when(! empty($filters['search']), function ($q) use ($filters, $operator) {
-                $search = $filters['search'];
-                $q->where(function ($query) use ($search, $operator) {
-                    $query->where('first_name', $operator, "%{$search}%")
-                          ->orWhere('last_name', $operator, "%{$search}%")
-                          ->orWhere('serial_number', $operator, "%{$search}%");
-                });
-            })
-            ->when(! empty($filters['status']), fn ($q) => $q->where('status', $filters['status']))
-            ->when(! empty($filters['rank']), fn ($q) => $q->where('rank', $filters['rank']))
-            ->when(! empty($filters['unit']), fn ($q) => $q->where('unit', $filters['unit']))
+            ->search($filters['search'] ?? null)
+            ->byStatus($filters['status'] ?? null)
+            ->byRank($filters['rank'] ?? null)
+            ->byUnit($filters['unit'] ?? null)
             ->latest('id')
             ->paginate($perPage)
             ->withQueryString();
