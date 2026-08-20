@@ -19,6 +19,8 @@ interface DatePickerProps {
   id?: string;
   className?: string;
   hasError?: boolean;
+  fromYear?: number;
+  toYear?: number;
 }
 
 export function DatePicker({
@@ -28,6 +30,8 @@ export function DatePicker({
   id,
   className,
   hasError,
+  fromYear,
+  toYear,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -50,26 +54,31 @@ export function DatePicker({
       <PopoverTrigger asChild>
         <Button
           id={id}
+          type="button"
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal h-9 bg-background shadow-xs",
+            "w-full justify-start text-left font-normal h-9 bg-background shadow-xs text-xs cursor-pointer",
             !date && "text-muted-foreground",
             hasError && "border-destructive focus-visible:ring-destructive",
             className
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+          <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
           {selectedDate ? (
-            format(selectedDate, "MMM d, yyyy")
+            <span className="text-foreground font-medium">
+              {format(selectedDate, "MMM d, yyyy")}
+            </span>
           ) : (
             <span>{placeholder}</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 border-none shadow-none bg-transparent" align="start">
+      <PopoverContent className="w-auto p-0 border-none shadow-none bg-transparent z-50" align="start">
         <Calendar
           selected={selectedDate}
           onSelect={handleSelect}
+          fromYear={fromYear}
+          toYear={toYear}
         />
       </PopoverContent>
     </Popover>

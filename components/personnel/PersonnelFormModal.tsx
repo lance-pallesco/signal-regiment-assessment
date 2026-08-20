@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -157,6 +158,8 @@ export function PersonnelFormModal({
   const validateForm = () => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = "Full name is required.";
+    if (!formData.birthday) errs.birthday = "Valid birthday is required.";
+    if (!formData.dateOfEnlistment) errs.dateOfEnlistment = "Valid enlistment date is required.";
     if (!formData.phone.trim() || formData.phone.length < 7)
       errs.phone = "Valid contact number is required.";
     if (!formData.email.trim() || !formData.email.includes("@"))
@@ -425,13 +428,18 @@ export function PersonnelFormModal({
                 <Label htmlFor="dateOfEnlistment" className="text-xs font-medium">
                   Date of Enlistment <span className="text-rose-500">*</span>
                 </Label>
-                <Input
+                <DatePicker
                   id="dateOfEnlistment"
-                  type="date"
-                  value={formData.dateOfEnlistment}
-                  onChange={(e) => setFormData({ ...formData, dateOfEnlistment: e.target.value })}
-                  className="text-xs"
+                  date={formData.dateOfEnlistment}
+                  onDateChange={(val) => setFormData({ ...formData, dateOfEnlistment: val })}
+                  placeholder="Pick date of enlistment"
+                  hasError={!!errors.dateOfEnlistment}
+                  fromYear={1920}
+                  toYear={new Date().getFullYear()}
                 />
+                {errors.dateOfEnlistment && (
+                  <p className="text-[11px] text-rose-500">{errors.dateOfEnlistment}</p>
+                )}
               </div>
             </div>
           </div>
@@ -445,13 +453,18 @@ export function PersonnelFormModal({
                 <Label htmlFor="birthday" className="text-xs font-medium">
                   Birthday <span className="text-rose-500">*</span>
                 </Label>
-                <Input
+                <DatePicker
                   id="birthday"
-                  type="date"
-                  value={formData.birthday}
-                  onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
-                  className="text-xs"
+                  date={formData.birthday}
+                  onDateChange={(val) => setFormData({ ...formData, birthday: val })}
+                  placeholder="Pick birthday"
+                  hasError={!!errors.birthday}
+                  fromYear={1920}
+                  toYear={new Date().getFullYear()}
                 />
+                {errors.birthday && (
+                  <p className="text-[11px] text-rose-500">{errors.birthday}</p>
+                )}
               </div>
 
               <div className="space-y-1">

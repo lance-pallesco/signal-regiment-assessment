@@ -1,10 +1,4 @@
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Login | Signal Regiment PIMS",
-  description: "Sign in to Signal Regiment Personnel Information Management System.",
-};
 
 export default function LoginPage() {
   return <LoginForm />;

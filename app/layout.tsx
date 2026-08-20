@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Client Project Tracker | Digital Agency Management",
-  description: "A clean digital agency tool to track client projects, monitor progress, and manage priorities.",
+  title: "Personnel Information Management System",
+  description:
+    "Personnel Information Management System for the Signal Regiment, Philippine Army.",
 };
 
 export default function RootLayout({
