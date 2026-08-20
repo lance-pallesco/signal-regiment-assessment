@@ -4,7 +4,7 @@ A full-stack, enterprise-grade personnel management and analytics platform engin
 
 ---
 
-## 🏛️ System Architecture & Technology Stack
+## System Architecture & Technology Stack
 
 ```
 signal-regiment-assessment/
@@ -115,7 +115,7 @@ CREATE DATABASE pims_db;
    ```bash
    php artisan serve --port=8000
    ```
-   > 📡 Backend API will be available at `http://localhost:8000`
+   > Backend API will be available at `http://localhost:8000`
 
 ---
 
@@ -140,7 +140,7 @@ CREATE DATABASE pims_db;
    ```bash
    npm run dev
    ```
-   > 🌐 Frontend Application will be accessible at `http://localhost:5173`
+   > Frontend Application will be accessible at `http://localhost:5173`
 
 ---
 
@@ -153,28 +153,7 @@ The database seeders provision a default System Administrator account for immedi
 | **Battalion S1 Admin** | `admin@signal.mil` | `password` | Click **"Auto-fill Demo Admin"** badge on Login page |
 
 ---
-
-## 📐 Architecture Rationale: Why It Was Built This Way
-
-### 1. Decoupled Monorepo Architecture
-- **Separation of Concerns**: The frontend is a dedicated client application consuming JSON endpoints. The backend operates purely as a stateless REST service with standard HTTP status codes.
-- **Independent Scalability**: Allows the React frontend to be hosted on edge CDNs (Vercel, Cloudflare Pages) while the Laravel API runs on horizontally autoscaled application servers.
-
-### 2. Pure HttpOnly Cookie SPA Authentication (Sanctum Native)
-- **Neutralizing XSS**: Storing sensitive bearer tokens in browser `localStorage` exposes them to Cross-Site Scripting vulnerabilities.
-- **Enterprise Cookie Security**: Sanctum sets encrypted, `HttpOnly`, `SameSite=Lax` cookies that JavaScript cannot access or exfiltrate. User session state is preserved in React memory (`AuthContext`) and automatically restored via `GET /api/auth/me`.
-
-### 3. Service Layer & Eloquent Scopes
-- **Fat Model, Skinny Controller**: Controllers only handle HTTP request parsing and JSON response formatting.
-- **Encapsulated Business Domain**: [`PersonnelService.php`](backend/app/Services/PersonnelService.php) handles photo storage, pagination, filtering, and database mutations. [`DashboardService.php`](backend/app/Services/DashboardService.php) aggregates metrics and chart datasets using Eloquent scopes (`active()`, `byRank()`, `byStatus()`, `byUnit()`).
-
-### 4. Component Design System with shadcn/ui & Tailwind
-- **Zero Overhead**: shadcn/ui provides copy-owned Radix UI components with complete accessibility (ARIA compliant, keyboard navigable) and zero runtime CSS overhead.
-- **Visual Excellence**: Curated military color palette using deep forest emerald `#064e3b`, crisp white card surfaces, soft borders, and responsive layouts.
-
----
-
-## 📡 REST API Endpoint Reference
+## REST API Endpoint Reference
 
 All endpoints (except login and CSRF initialization) require Sanctum authentication:
 
@@ -223,9 +202,3 @@ npm run build
 ```
 
 ---
-
-## 🤖 AI Disclosure & Development Attribution
-
-This project was engineered using **pair programming with Antigravity AI** (Google DeepMind Advanced Agentic Coding). 
-- **AI Utilization**: Architectural design exploration, test suite scaffolding, initial component boilerplate, and SQL indexing optimization.
-- **Developer Review & Quality Control**: All schema decisions, database migrations, Eloquent refactorings, security policies (HttpOnly cookie enforcement, CSRF exemptions), UI aesthetic adjustments, and test assertions were reviewed, tested, and validated by the developer.
