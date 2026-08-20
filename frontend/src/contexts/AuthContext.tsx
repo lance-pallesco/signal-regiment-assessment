@@ -13,27 +13,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('auth_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('auth_token');
-      if (token || user) {
-        try {
-          const currentUser = await authService.me();
-          setUser(currentUser);
-          localStorage.setItem('auth_user', JSON.stringify(currentUser));
-        } catch {
-          setUser(null);
-          localStorage.removeItem('auth_user');
-          localStorage.removeItem('auth_token');
-        }
+      try {
+        const currentUser = await authService.me();
+        setUser(currentUser);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkAuth();
@@ -44,10 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await authService.login(credentials);
       setUser(data.user);
-      if (data.token) {
-        localStorage.setItem('auth_token', data.token);
-      }
-      localStorage.setItem('auth_user', JSON.stringify(data.user));
     } finally {
       setIsLoading(false);
     }
@@ -60,8 +48,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Ignore network errors on logout
     } finally {
       setUser(null);
-      localStorage.removeItem('auth_user');
-      localStorage.removeItem('auth_token');
     }
   };
 
