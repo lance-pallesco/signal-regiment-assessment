@@ -13,7 +13,9 @@ class AuthService
      */
     public function login(Request $request): User
     {
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
 
         /** @var User $user */
         $user = Auth::user();

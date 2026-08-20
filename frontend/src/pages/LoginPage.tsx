@@ -4,7 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, KeyRound } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -14,7 +15,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
@@ -28,16 +28,19 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
 
     // Client-side validation
     if (!email.trim()) {
-      setErrorMessage('Please enter your username or email address.');
+      toast.error('Validation Error', {
+        description: 'Please enter your username or email address.',
+      });
       return;
     }
 
     if (!password) {
-      setErrorMessage('Please enter your password.');
+      toast.error('Validation Error', {
+        description: 'Please enter your password.',
+      });
       return;
     }
 
@@ -45,16 +48,21 @@ export default function LoginPage() {
 
     try {
       await login({ email: email.trim(), password });
+      toast.success('Authentication Successful', {
+        description: 'Welcome back to Signal Personnel Management System.',
+      });
       navigate(from, { replace: true });
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      let description = 'Unable to authenticate. Please check your credentials and try again.';
       if (error.response?.data?.errors?.email?.[0]) {
-        setErrorMessage(error.response.data.errors.email[0]);
+        description = error.response.data.errors.email[0];
       } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
-      } else {
-        setErrorMessage('Unable to authenticate. Please check your credentials and connection.');
+        description = error.response.data.message;
       }
+      toast.error('Authentication Failed', {
+        description,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +71,9 @@ export default function LoginPage() {
   const fillDemoCredentials = () => {
     setEmail('admin@signal.mil');
     setPassword('password');
-    setErrorMessage(null);
+    toast.info('Demo Credentials Loaded', {
+      description: 'Logged as System Administrator (admin@signal.mil).',
+    });
   };
 
   return (
@@ -83,7 +93,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={fillDemoCredentials}
-          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-100"
+          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-100"
         >
           <KeyRound className="h-3.5 w-3.5 text-emerald-600" />
           Auto-fill Demo Admin
@@ -104,14 +114,6 @@ export default function LoginPage() {
               Personnel Information Management System for military personnel and unit administration.
             </p>
           </div>
-
-          {/* Error Feedback */}
-          {errorMessage && (
-            <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-xs text-rose-800 animate-in fade-in duration-200">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
-              <div className="flex-1 font-medium">{errorMessage}</div>
-            </div>
-          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -158,7 +160,9 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setErrorMessage('Password reset requests must be authorized by your Unit Battalion Admin.');
+                    toast.info('Password Reset Restricted', {
+                      description: 'Password reset requests must be authorized by your Unit Battalion Admin.',
+                    });
                   }}
                   className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline"
                 >
@@ -201,7 +205,9 @@ export default function LoginPage() {
             type="button"
             variant="outline"
             onClick={() => {
-              setErrorMessage('Google SSO is restricted to authorized military intranet domains.');
+              toast.warning('Access Restricted', {
+                description: 'Google SSO is restricted to authorized military intranet domains.',
+              });
             }}
             className="h-11 w-full rounded-lg border-slate-200 bg-white font-medium text-slate-700 shadow-none hover:bg-slate-50 hover:text-slate-900"
           >
@@ -232,7 +238,9 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => {
-                setErrorMessage('Personnel accounts are provisioned by Battalion S1 Personnel Officers.');
+                toast.info('Registration Notice', {
+                  description: 'Personnel accounts are provisioned by Battalion S1 Personnel Officers.',
+                });
               }}
               className="font-semibold text-emerald-700 hover:text-emerald-800 hover:underline"
             >
