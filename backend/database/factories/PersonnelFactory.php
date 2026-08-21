@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Personnel;
+use App\Models\Rank;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,10 +28,9 @@ class PersonnelFactory extends Factory
         $gender = fake()->randomElement(['Male', 'Female']);
         $firstName = $gender === 'Male' ? fake()->firstNameMale() : fake()->firstNameFemale();
         $lastName = fake()->lastName();
-        $ranks = [
-            'PVT', 'PFC', 'CPL', 'SGT', 'SSG', 'SFC', 'MSG', 'SGM',
-            '2LT', '1LT', 'CPT', 'MAJ', 'LTC', 'COL', 'BG', 'MG',
-        ];
+
+        $rankCode = Rank::inRandomOrder()->value('code') ?? 'PVT';
+
         $units = [
             'Signal Company Alpha',
             'Signal Company Bravo',
@@ -70,7 +70,7 @@ class PersonnelFactory extends Factory
             'serial_number' => "SIG-{$enlistmentYear}-{$serialSuffix}",
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'rank' => fake()->randomElement($ranks),
+            'rank' => $rankCode,
             'birthday' => $birthDate,
             'gender' => $gender,
             'civil_status' => fake()->randomElement(['Single', 'Married', 'Widowed', 'Separated', 'Divorced']),
@@ -101,7 +101,7 @@ class PersonnelFactory extends Factory
     public function officer(): static
     {
         return $this->state(fn (array $attributes) => [
-            'rank' => fake()->randomElement(['2LT', '1LT', 'CPT', 'MAJ', 'LTC', 'COL']),
+            'rank' => Rank::where('category', 'LIKE', '%Officer%')->inRandomOrder()->value('code') ?? '2LT',
         ]);
     }
 }

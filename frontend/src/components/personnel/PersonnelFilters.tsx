@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import type { PersonnelFilters as FilterType, Rank, PersonnelStatus } from '../../types';
+import { useRanks } from '../../hooks/useRanks';
 import { Search, RotateCcw } from 'lucide-react';
 
 interface PersonnelFiltersProps {
@@ -16,11 +17,6 @@ interface PersonnelFiltersProps {
   onFilterChange: (newFilters: Partial<FilterType>) => void;
   onReset: () => void;
 }
-
-const RANKS: Rank[] = [
-  'PVT', 'PFC', 'CPL', 'SGT', 'SSG', 'SFC', 'MSG', 'SGM',
-  '2LT', '1LT', 'CPT', 'MAJ', 'LTC', 'COL', 'BG', 'MG',
-];
 
 const STATUSES: PersonnelStatus[] = ['Active', 'Reserve', 'AWOL', 'Retired'];
 
@@ -40,6 +36,8 @@ export default function PersonnelFilters({
   onFilterChange,
   onReset,
 }: PersonnelFiltersProps) {
+  const { ranks } = useRanks();
+
   return (
     <div className="rounded-xl border border-slate-200/90 bg-white p-3 sm:p-4 shadow-sm mb-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -85,9 +83,9 @@ export default function PersonnelFilters({
             </SelectTrigger>
             <SelectContent className="bg-white border-slate-200">
               <SelectItem value="ALL" className="text-xs font-medium">All Ranks</SelectItem>
-              {RANKS.map((rank) => (
-                <SelectItem key={rank} value={rank} className="text-xs font-medium">
-                  {rank}
+              {ranks.map((r) => (
+                <SelectItem key={r.code} value={r.code} className="text-xs font-medium">
+                  {r.code}
                 </SelectItem>
               ))}
             </SelectContent>

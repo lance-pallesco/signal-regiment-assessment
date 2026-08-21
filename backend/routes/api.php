@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\RankController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -15,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
     });
 
+    Route::get('/ranks', [RankController::class, 'index']);
     Route::get('personnel/next-serial', [PersonnelController::class, 'nextSerialNumber']);
     Route::apiResource('personnel', PersonnelController::class);
 

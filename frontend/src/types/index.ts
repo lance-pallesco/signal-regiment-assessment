@@ -4,23 +4,15 @@ export type Gender = 'Male' | 'Female';
 
 export type CivilStatus = 'Single' | 'Married' | 'Widowed' | 'Separated' | 'Divorced';
 
-export type Rank =
-  | 'PVT'
-  | 'PFC'
-  | 'CPL'
-  | 'SGT'
-  | 'SSG'
-  | 'SFC'
-  | 'MSG'
-  | 'SGM'
-  | '2LT'
-  | '1LT'
-  | 'CPT'
-  | 'MAJ'
-  | 'LTC'
-  | 'COL'
-  | 'BG'
-  | 'MG';
+export type Rank = string;
+
+export interface RankItem {
+  id: number;
+  code: Rank;
+  name: string;
+  category: string;
+  order: number;
+}
 
 export interface Personnel {
   id: number;

@@ -22,6 +22,7 @@ import {
   Save,
   Loader2,
 } from 'lucide-react';
+import { useRanks } from '../../hooks/useRanks';
 import { toast } from 'sonner';
 
 interface PersonnelFormProps {
@@ -30,11 +31,6 @@ interface PersonnelFormProps {
   isSubmitting: boolean;
   submitLabel?: string;
 }
-
-const RANKS: Rank[] = [
-  'PVT', 'PFC', 'CPL', 'SGT', 'SSG', 'SFC', 'MSG', 'SGM',
-  '2LT', '1LT', 'CPT', 'MAJ', 'LTC', 'COL', 'BG', 'MG',
-];
 
 const STATUSES: PersonnelStatus[] = ['Active', 'Reserve', 'AWOL', 'Retired'];
 
@@ -62,10 +58,17 @@ export default function PersonnelForm({
   submitLabel = 'Save Personnel Record',
 }: PersonnelFormProps) {
   const navigate = useNavigate();
+  const { ranks } = useRanks();
 
   const [firstName, setFirstName] = useState(initialData?.first_name || '');
   const [lastName, setLastName] = useState(initialData?.last_name || '');
-  const [rank, setRank] = useState<Rank>(initialData?.rank || 'PVT');
+  const [rank, setRank] = useState<Rank>(initialData?.rank || '');
+
+  React.useEffect(() => {
+    if (!rank && ranks.length > 0) {
+      setRank(ranks[0].code);
+    }
+  }, [ranks, rank]);
   const [birthday, setBirthday] = useState(initialData?.birthday || '');
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'Male');
   const [civilStatus, setCivilStatus] = useState<CivilStatus>(initialData?.civil_status || 'Single');
@@ -200,9 +203,9 @@ export default function PersonnelForm({
                 <SelectValue placeholder="Select Rank" />
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-200 max-h-64">
-                {RANKS.map((r) => (
-                  <SelectItem key={r} value={r} className="text-xs font-semibold">
-                    {r}
+                {ranks.map((r) => (
+                  <SelectItem key={r.code} value={r.code} className="text-xs font-semibold">
+                    {r.code}
                   </SelectItem>
                 ))}
               </SelectContent>

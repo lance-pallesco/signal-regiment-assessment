@@ -26,7 +26,7 @@ class StorePersonnelRequest extends FormRequest
             'serial_number'      => ['nullable', 'string', 'max:50', 'unique:personnel,serial_number'],
             'first_name'         => ['required', 'string', 'max:100'],
             'last_name'          => ['required', 'string', 'max:100'],
-            'rank'               => ['required', 'string', Rule::in($this->validRanks())],
+            'rank'               => ['required', 'string', 'exists:ranks,code'],
             'birthday'           => ['required', 'date', 'before:today'],
             'gender'             => ['required', Rule::in(['Male', 'Female'])],
             'civil_status'       => ['required', Rule::in(['Single', 'Married', 'Widowed', 'Separated', 'Divorced'])],
@@ -38,19 +38,6 @@ class StorePersonnelRequest extends FormRequest
             'date_of_enlistment' => ['required', 'date', 'before_or_equal:today'],
             'status'             => ['required', Rule::in(['Active', 'Reserve', 'AWOL', 'Retired'])],
             'photo'              => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ];
-    }
-
-    /**
-     * The list of valid military ranks.
-     *
-     * @return array<string>
-     */
-    public function validRanks(): array
-    {
-        return [
-            'PVT', 'PFC', 'CPL', 'SGT', 'SSG', 'SFC', 'MSG', 'SGM',
-            '2LT', '1LT', 'CPT', 'MAJ', 'LTC', 'COL', 'BG', 'MG',
         ];
     }
 }
