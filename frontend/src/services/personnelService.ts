@@ -15,27 +15,25 @@ export const personnelService = {
     return response.data;
   },
 
+  async getNextSerialNumber(): Promise<string> {
+    const response = await api.get<{ serial_number: string }>('/api/personnel/next-serial');
+    return response.data.serial_number;
+  },
+
   async get(id: number | string): Promise<Personnel> {
     const response = await api.get<ApiResponse<Personnel>>(`/api/personnel/${id}`);
     return response.data.data;
   },
 
-  async create(data: FormData | Record<string, unknown>): Promise<Personnel> {
-    const response = await api.post<ApiResponse<Personnel>>('/api/personnel', data);
+  async create(formData: FormData): Promise<Personnel> {
+    const response = await api.post<ApiResponse<Personnel>>('/api/personnel', formData);
     return response.data.data;
   },
 
-  async update(id: number | string, data: FormData | Record<string, unknown>): Promise<Personnel> {
-    if (data instanceof FormData) {
-      if (!data.has('_method')) {
-        data.append('_method', 'PUT');
-      }
-      const response = await api.post<ApiResponse<Personnel>>(`/api/personnel/${id}`, data);
-      return response.data.data;
-    } else {
-      const response = await api.put<ApiResponse<Personnel>>(`/api/personnel/${id}`, data);
-      return response.data.data;
-    }
+  async update(id: number | string, formData: FormData): Promise<Personnel> {
+    formData.append('_method', 'PUT');
+    const response = await api.post<ApiResponse<Personnel>>(`/api/personnel/${id}`, formData);
+    return response.data.data;
   },
 
   async delete(id: number | string): Promise<void> {

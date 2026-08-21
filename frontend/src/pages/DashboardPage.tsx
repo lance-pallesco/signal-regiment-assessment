@@ -39,7 +39,7 @@ export default function DashboardPage() {
               <LayoutDashboard className="h-4 w-4" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              Executive Analytics Dashboard
+              Dashboard
             </h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">

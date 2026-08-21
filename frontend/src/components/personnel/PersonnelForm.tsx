@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 
 interface PersonnelFormProps {
   initialData?: Partial<Personnel>;
-  onSubmit: (payload: FormData | Record<string, unknown>) => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   isSubmitting: boolean;
   submitLabel?: string;
 }
@@ -63,7 +63,6 @@ export default function PersonnelForm({
 }: PersonnelFormProps) {
   const navigate = useNavigate();
 
-  const [serialNumber, setSerialNumber] = useState(initialData?.serial_number || '');
   const [firstName, setFirstName] = useState(initialData?.first_name || '');
   const [lastName, setLastName] = useState(initialData?.last_name || '');
   const [rank, setRank] = useState<Rank>(initialData?.rank || 'PVT');
@@ -79,15 +78,13 @@ export default function PersonnelForm({
   const [status, setStatus] = useState<PersonnelStatus>(initialData?.status || 'Active');
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
+  // Maximum selectable date is today (disables future dates in native date picker)
+  const today = new Date().toISOString().split('T')[0];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Client-side validations
-    if (!serialNumber.trim()) {
-      toast.error('Validation Error', { description: 'Military Serial Number is required.' });
-      return;
-    }
-
     if (!firstName.trim() || !lastName.trim()) {
       toast.error('Validation Error', { description: 'First and Last names are required.' });
       return;
@@ -98,23 +95,8 @@ export default function PersonnelForm({
       return;
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    if (birthday >= todayStr) {
-      toast.error('Invalid Date of Birth', {
-        description: 'Date of birth must be a past date before today.',
-      });
-      return;
-    }
-
     if (!dateOfEnlistment) {
       toast.error('Validation Error', { description: 'Date of Enlistment is required.' });
-      return;
-    }
-
-    if (dateOfEnlistment > todayStr) {
-      toast.error('Invalid Enlistment Date', {
-        description: 'Date of enlistment cannot be in the future.',
-      });
       return;
     }
 
@@ -133,50 +115,32 @@ export default function PersonnelForm({
       return;
     }
 
-    // Build payload: use FormData only if a photo file was selected, otherwise use clean JSON object
-    if (photoFile) {
-      const formData = new FormData();
-      formData.append('serial_number', serialNumber.trim());
-      formData.append('first_name', firstName.trim());
-      formData.append('last_name', lastName.trim());
-      formData.append('rank', rank);
-      formData.append('birthday', birthday);
-      formData.append('gender', gender);
-      formData.append('civil_status', civilStatus);
-      formData.append('phone', phone.trim());
-      if (email.trim()) {
-        formData.append('email', email.trim());
-      }
-      formData.append('address', address.trim());
-      formData.append('unit', unit);
-      formData.append('position', position.trim());
-      formData.append('date_of_enlistment', dateOfEnlistment);
-      formData.append('status', status);
-      formData.append('photo', photoFile);
-
-      await onSubmit(formData);
-    } else {
-      const jsonPayload: Record<string, unknown> = {
-        serial_number: serialNumber.trim(),
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
-        rank,
-        birthday,
-        gender,
-        civil_status: civilStatus,
-        phone: phone.trim(),
-        address: address.trim(),
-        unit,
-        position: position.trim(),
-        date_of_enlistment: dateOfEnlistment,
-        status,
-      };
-      if (email.trim()) {
-        jsonPayload.email = email.trim();
-      }
-
-      await onSubmit(jsonPayload);
+    // Prepare FormData payload
+    const formData = new FormData();
+    if (initialData?.serial_number) {
+      formData.append('serial_number', initialData.serial_number);
     }
+    formData.append('first_name', firstName.trim());
+    formData.append('last_name', lastName.trim());
+    formData.append('rank', rank);
+    formData.append('birthday', birthday);
+    formData.append('gender', gender);
+    formData.append('civil_status', civilStatus);
+    formData.append('phone', phone.trim());
+    if (email.trim()) {
+      formData.append('email', email.trim());
+    }
+    formData.append('address', address.trim());
+    formData.append('unit', unit);
+    formData.append('position', position.trim());
+    formData.append('date_of_enlistment', dateOfEnlistment);
+    formData.append('status', status);
+
+    if (photoFile) {
+      formData.append('photo', photoFile);
+    }
+
+    await onSubmit(formData);
   };
 
   const getInitials = () => {
@@ -204,23 +168,7 @@ export default function PersonnelForm({
             Military Service Identity
           </h3>
         </div>
-        <CardContent className="p-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Serial Number */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-700">
-              Serial Number <span className="text-rose-500">*</span>
-            </Label>
-            <Input
-              type="text"
-              placeholder="e.g. SIG-2024-001"
-              value={serialNumber}
-              onChange={(e) => setSerialNumber(e.target.value)}
-              disabled={isSubmitting}
-              className="mt-1.5 h-10 border-slate-200 bg-slate-50/50 text-sm font-mono focus-visible:ring-emerald-600/30"
-              required
-            />
-          </div>
-
+        <CardContent className="p-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {/* First Name */}
           <div>
             <Label className="text-xs font-semibold text-slate-700">
@@ -268,8 +216,8 @@ export default function PersonnelForm({
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-200 max-h-64">
                 {RANKS.map((r) => (
-                  <SelectItem key={r} value={r} className="text-xs font-medium">
-                    {r} (Philippine Army Signal)
+                  <SelectItem key={r} value={r} className="text-xs font-semibold">
+                    {r}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -334,6 +282,7 @@ export default function PersonnelForm({
             <Input
               type="date"
               value={dateOfEnlistment}
+              max={today}
               onChange={(e) => setDateOfEnlistment(e.target.value)}
               disabled={isSubmitting}
               className="mt-1.5 h-10 border-slate-200 bg-slate-50/50 text-sm focus-visible:ring-emerald-600/30"
@@ -384,6 +333,7 @@ export default function PersonnelForm({
               <Input
                 type="date"
                 value={birthday}
+                max={today}
                 onChange={(e) => setBirthday(e.target.value)}
                 disabled={isSubmitting}
                 className="mt-1.5 h-10 border-slate-200 bg-slate-50/50 text-sm focus-visible:ring-emerald-600/30"

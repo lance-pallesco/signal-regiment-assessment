@@ -23,7 +23,7 @@ class StorePersonnelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'serial_number'      => ['required', 'string', 'max:50', 'unique:personnel,serial_number'],
+            'serial_number'      => ['nullable', 'string', 'max:50', 'unique:personnel,serial_number'],
             'first_name'         => ['required', 'string', 'max:100'],
             'last_name'          => ['required', 'string', 'max:100'],
             'rank'               => ['required', 'string', Rule::in($this->validRanks())],

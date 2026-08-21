@@ -12,7 +12,7 @@ import {
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { Eye, Edit3, Trash2, ShieldAlert } from 'lucide-react';
+import { Eye, Edit3, Trash2, ShieldAlert, Calendar } from 'lucide-react';
 
 interface PersonnelTableProps {
   personnel: Personnel[];
@@ -52,7 +52,7 @@ export default function PersonnelTable({
   };
 
   return (
-    <div className="rounded-xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
       {/* Table Header Details */}
       <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
         <div>
@@ -68,24 +68,24 @@ export default function PersonnelTable({
       {/* Table Content */}
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-50/60">
+          <TableHeader className="bg-slate-50/70">
             <TableRow className="hover:bg-transparent border-slate-100">
               <TableHead className="w-[140px] text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-6">
                 Serial No.
               </TableHead>
-              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider min-w-[220px]">
                 Personnel
               </TableHead>
               <TableHead className="w-[100px] text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Rank
               </TableHead>
-              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider min-w-[180px]">
                 Unit & Role
               </TableHead>
               <TableHead className="w-[120px] text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Status
               </TableHead>
-              <TableHead className="w-[120px] text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <TableHead className="w-[140px] text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Enlisted Date
               </TableHead>
               <TableHead className="w-[120px] text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider pr-6">
@@ -98,34 +98,34 @@ export default function PersonnelTable({
               // Loading Skeleton
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index} className="border-slate-100">
-                  <TableCell className="pl-6">
+                  <TableCell className="pl-6 py-4">
                     <div className="h-4 w-24 animate-pulse rounded bg-slate-200" />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 animate-pulse rounded-full bg-slate-200" />
-                      <div className="space-y-1">
+                      <div className="h-10 w-10 animate-pulse rounded-full bg-slate-200" />
+                      <div className="space-y-1.5">
                         <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
-                        <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+                        <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-4">
                     <div className="h-5 w-12 animate-pulse rounded bg-slate-200" />
                   </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
+                  <TableCell className="py-4">
+                    <div className="space-y-1.5">
                       <div className="h-4 w-36 animate-pulse rounded bg-slate-200" />
                       <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-4">
                     <div className="h-6 w-16 animate-pulse rounded-full bg-slate-200" />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-4">
                     <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
                   </TableCell>
-                  <TableCell className="pr-6">
+                  <TableCell className="pr-6 py-4">
                     <div className="flex justify-end gap-1.5">
                       <div className="h-8 w-8 animate-pulse rounded bg-slate-200" />
                       <div className="h-8 w-8 animate-pulse rounded bg-slate-200" />
@@ -150,47 +150,53 @@ export default function PersonnelTable({
             ) : (
               // Personnel Rows
               personnel.map((person) => (
-                <TableRow key={person.id} className="border-slate-100 hover:bg-slate-50/60 transition-colors">
+                <TableRow key={person.id} className="border-slate-100 hover:bg-slate-50/70 transition-colors">
                   {/* Serial Number */}
-                  <TableCell className="pl-6 font-mono text-xs font-semibold text-slate-700">
+                  <TableCell className="pl-6 py-3.5 font-mono text-xs font-bold text-slate-700">
                     {person.serial_number}
                   </TableCell>
 
                   {/* Personnel Info */}
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 border border-slate-200 bg-emerald-50">
-                        {person.photo_url && <AvatarImage src={person.photo_url} alt={person.first_name} />}
-                        <AvatarFallback className="text-xs font-bold text-emerald-800">
+                  <TableCell className="py-3.5">
+                    <div className="flex items-center gap-3.5">
+                      <Avatar className="h-10 w-10 shrink-0 border border-slate-200 shadow-xs bg-emerald-50">
+                        {person.photo_url && (
+                          <AvatarImage
+                            src={person.photo_url}
+                            alt={`${person.first_name} ${person.last_name}`}
+                            className="h-full w-full object-cover object-center"
+                          />
+                        )}
+                        <AvatarFallback className="text-xs font-bold text-emerald-800 bg-emerald-100">
                           {getInitials(person.first_name, person.last_name)}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <div className="font-semibold text-slate-900 text-sm">
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 text-sm tracking-tight truncate">
                           {person.first_name} {person.last_name}
                         </div>
-                        <div className="text-[11px] text-slate-400 font-mono">
-                          {person.phone} {person.email ? `• ${person.email}` : ''}
+                        <div className="text-xs text-slate-500 font-normal truncate mt-0.5">
+                          {person.email || person.phone}
                         </div>
                       </div>
                     </div>
                   </TableCell>
 
                   {/* Rank */}
-                  <TableCell>
-                    <Badge variant="outline" className="font-bold text-xs bg-slate-100/80 text-slate-800 border-slate-200">
+                  <TableCell className="py-3.5">
+                    <Badge variant="outline" className="font-bold text-xs bg-slate-100/90 text-slate-800 border-slate-200">
                       {person.rank}
                     </Badge>
                   </TableCell>
 
                   {/* Unit & Position */}
-                  <TableCell>
-                    <div className="text-sm font-medium text-slate-800">{person.position}</div>
-                    <div className="text-[11px] text-slate-500">{person.unit}</div>
+                  <TableCell className="py-3.5">
+                    <div className="text-sm font-semibold text-slate-800 leading-snug">{person.position}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{person.unit}</div>
                   </TableCell>
 
                   {/* Status */}
-                  <TableCell>
+                  <TableCell className="py-3.5">
                     <Badge
                       variant="outline"
                       className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${statusBadgeStyles[person.status]}`}
@@ -200,12 +206,15 @@ export default function PersonnelTable({
                   </TableCell>
 
                   {/* Enlisted Date */}
-                  <TableCell className="text-xs text-slate-600 font-medium">
-                    {formatDate(person.date_of_enlistment)}
+                  <TableCell className="py-3.5 text-xs text-slate-600 font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                      {formatDate(person.date_of_enlistment)}
+                    </span>
                   </TableCell>
 
                   {/* Actions */}
-                  <TableCell className="pr-6 text-right">
+                  <TableCell className="pr-6 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       {/* View Details */}
                       <Button
@@ -213,7 +222,7 @@ export default function PersonnelTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => onView(person)}
-                        className="h-8 w-8 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50"
+                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
                         title="View Full Record"
                       >
                         <Eye className="h-4 w-4" />
@@ -225,7 +234,7 @@ export default function PersonnelTable({
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-slate-500 hover:text-blue-700 hover:bg-blue-50"
+                          className="h-8 w-8 rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                           title="Edit Record"
                         >
                           <Edit3 className="h-4 w-4" />
@@ -238,7 +247,7 @@ export default function PersonnelTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(person)}
-                        className="h-8 w-8 text-slate-500 hover:text-rose-700 hover:bg-rose-50"
+                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
                         title="Delete Personnel"
                       >
                         <Trash2 className="h-4 w-4" />

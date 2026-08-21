@@ -27,12 +27,16 @@ class PersonnelService
     }
 
     /**
-     * Create a new personnel record with optional photo.
+     * Create a new personnel record with optional photo and auto-generated serial number.
      *
      * @param array<string, mixed> $data
      */
     public function create(array $data, ?UploadedFile $photo = null): Personnel
     {
+        if (empty($data['serial_number'])) {
+            $data['serial_number'] = Personnel::generateSerialNumber();
+        }
+
         if ($photo) {
             $data['photo_path'] = $photo->store('photos', 'public');
         }

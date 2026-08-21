@@ -69,6 +69,32 @@ class Personnel extends Model
     }
 
     /**
+     * Generate the next military sequential serial number (SIG-YYYY-XXXX).
+     */
+    public static function generateSerialNumber(): string
+    {
+        $year = date('Y');
+        $latest = static::where('serial_number', 'LIKE', "SIG-{$year}-%")
+            ->orderByDesc('id')
+            ->first();
+
+        if ($latest && preg_match('/SIG-\d{4}-(\d+)/', $latest->serial_number, $matches)) {
+            $nextSeq = (int) $matches[1] + 1;
+        } else {
+            $nextSeq = static::count() + 1;
+        }
+
+        $serial = sprintf('SIG-%s-%04d', $year, $nextSeq);
+
+        while (static::where('serial_number', $serial)->exists()) {
+            $nextSeq++;
+            $serial = sprintf('SIG-%s-%04d', $year, $nextSeq);
+        }
+
+        return $serial;
+    }
+
+    /**
      * Get the personnel's full name.
      */
     protected function fullName(): Attribute

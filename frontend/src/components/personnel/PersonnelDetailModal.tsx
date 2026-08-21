@@ -134,7 +134,7 @@ export default function PersonnelDetailModal({
                 <p className="text-[11px] text-slate-500 font-medium">Service Rank</p>
                 <p className="text-sm font-semibold text-slate-800 flex items-center gap-1.5 mt-0.5">
                   <Shield className="h-4 w-4 text-emerald-600" />
-                  {personnel.rank} (Philippine Army Signal)
+                  {personnel.rank}
                 </p>
               </div>
             </div>
@@ -190,7 +190,7 @@ export default function PersonnelDetailModal({
                 <div>
                   <p className="text-[11px] text-slate-500 font-medium">Military Email</p>
                   <p className="text-sm font-semibold text-slate-900 font-mono mt-0.5">
-                    {personnel.email || 'None Provided'}
+                    {personnel.email || 'Not Provided'}
                   </p>
                 </div>
               </div>

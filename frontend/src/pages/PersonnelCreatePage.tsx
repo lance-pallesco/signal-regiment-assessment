@@ -10,10 +10,10 @@ export default function PersonnelCreatePage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreate = async (payload: FormData | Record<string, unknown>) => {
+  const handleCreate = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      const created = await personnelService.create(payload);
+      const created = await personnelService.create(formData);
       toast.success('Personnel Enlisted Successfully', {
         description: `Service record for ${created.rank} ${created.first_name} ${created.last_name} (${created.serial_number}) registered.`,
       });
@@ -22,11 +22,8 @@ export default function PersonnelCreatePage() {
       const error = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       let description = 'Unable to enlist personnel. Please check required fields.';
       if (error.response?.data?.errors) {
-        const errorEntries = Object.entries(error.response.data.errors);
-        if (errorEntries.length > 0) {
-          const [, messages] = errorEntries[0];
-          if (messages?.[0]) description = messages[0];
-        }
+        const firstError = Object.values(error.response.data.errors)[0];
+        if (firstError?.[0]) description = firstError[0];
       } else if (error.response?.data?.message) {
         description = error.response.data.message;
       }

@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
     });
 
+    Route::get('personnel/next-serial', [PersonnelController::class, 'nextSerialNumber']);
     Route::apiResource('personnel', PersonnelController::class);
 
     Route::prefix('dashboard')->group(function () {

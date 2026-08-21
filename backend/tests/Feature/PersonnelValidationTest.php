@@ -50,7 +50,6 @@ class PersonnelValidationTest extends TestCase
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors([
-                'serial_number',
                 'first_name',
                 'last_name',
                 'rank',
@@ -64,6 +63,28 @@ class PersonnelValidationTest extends TestCase
                 'date_of_enlistment',
                 'status',
             ]);
+    }
+
+    public function test_auto_generates_serial_number_if_omitted(): void
+    {
+        $year = date('Y');
+        $response = $this->actingAs($this->user)->postJson('/api/personnel', [
+            'first_name'         => 'Auto',
+            'last_name'          => 'Generated',
+            'rank'               => 'PVT',
+            'birthday'           => '1999-05-10',
+            'gender'             => 'Male',
+            'civil_status'       => 'Single',
+            'phone'              => '09181112233',
+            'address'            => 'Camp Aguinaldo',
+            'unit'               => 'Signal Company Alpha',
+            'position'           => 'Radio Technician',
+            'date_of_enlistment' => '2022-03-01',
+            'status'             => 'Active',
+        ]);
+
+        $response->assertCreated();
+        $this->assertStringStartsWith("SIG-{$year}-", $response->json('data.serial_number'));
     }
 
     public function test_validates_valid_military_rank_enum(): void

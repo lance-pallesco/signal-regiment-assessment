@@ -16,6 +16,17 @@ class PersonnelController extends Controller
     ) {}
 
     /**
+     * GET /api/personnel/next-serial
+     * Expose the next auto-generated military serial number.
+     */
+    public function nextSerialNumber(): JsonResponse
+    {
+        return response()->json([
+            'serial_number' => Personnel::generateSerialNumber(),
+        ]);
+    }
+
+    /**
      * GET /api/personnel
      * List all personnel with filters, search, and pagination.
      */
