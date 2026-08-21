@@ -55,7 +55,7 @@ export default function PersonnelDetailModal({
         <div className="bg-[#064e3b] p-6 text-white relative">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border-2 border-white/80 shadow-md bg-emerald-800 text-white shrink-0">
+              <Avatar className="h-16 w-16 border-2 border-white/80 shadow-md shrink-0 bg-white/10">
                 {personnel.photo_url && (
                   <AvatarImage
                     src={personnel.photo_url}
@@ -63,7 +63,7 @@ export default function PersonnelDetailModal({
                     className="h-full w-full object-cover object-center"
                   />
                 )}
-                <AvatarFallback className="text-lg font-bold text-white bg-emerald-900">
+                <AvatarFallback className="text-base font-bold text-slate-800 bg-slate-100 border border-slate-200">
                   {getInitials(personnel.first_name, personnel.last_name)}
                 </AvatarFallback>
               </Avatar>

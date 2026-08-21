@@ -103,7 +103,7 @@ export default function PersonnelTable({
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 animate-pulse rounded-full bg-slate-200" />
+                      <div className="h-9 w-9 animate-pulse rounded-full bg-slate-200" />
                       <div className="space-y-1.5">
                         <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
                         <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
@@ -158,8 +158,8 @@ export default function PersonnelTable({
 
                   {/* Personnel Info */}
                   <TableCell className="py-3.5">
-                    <div className="flex items-center gap-3.5">
-                      <Avatar className="h-10 w-10 shrink-0 border border-slate-200 shadow-xs bg-emerald-50">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9 shrink-0 border border-slate-200/90 shadow-2xs">
                         {person.photo_url && (
                           <AvatarImage
                             src={person.photo_url}
@@ -167,7 +167,7 @@ export default function PersonnelTable({
                             className="h-full w-full object-cover object-center"
                           />
                         )}
-                        <AvatarFallback className="text-xs font-bold text-emerald-800 bg-emerald-100">
+                        <AvatarFallback className="bg-slate-100 text-slate-600 font-semibold text-xs border border-slate-200/80">
                           {getInitials(person.first_name, person.last_name)}
                         </AvatarFallback>
                       </Avatar>

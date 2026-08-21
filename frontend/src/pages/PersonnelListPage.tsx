@@ -125,7 +125,7 @@ export default function PersonnelListPage() {
         <AlertDialogContent className="bg-white border-slate-200 rounded-2xl max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-lg font-bold text-slate-900">
-              Confirm Personnel Discharge / Deletion
+              Confirm Personnel Deletion
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-slate-500 leading-relaxed">
               Are you sure you want to permanently delete the military record for{' '}

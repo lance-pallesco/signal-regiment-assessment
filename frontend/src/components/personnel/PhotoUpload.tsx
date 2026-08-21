@@ -73,9 +73,9 @@ export default function PhotoUpload({
 
       {/* Avatar Preview */}
       <div className="relative group">
-        <Avatar className="h-24 w-24 border-2 border-slate-200 bg-emerald-50 text-emerald-800 shadow-sm">
-          {displayImage && <AvatarImage src={displayImage} alt="Personnel Photo" className="object-cover" />}
-          <AvatarFallback className="text-xl font-black text-emerald-800 bg-emerald-100">
+        <Avatar className="h-24 w-24 rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-700 shadow-sm overflow-hidden">
+          {displayImage && <AvatarImage src={displayImage} alt="Personnel Photo" className="h-full w-full object-cover" />}
+          <AvatarFallback className="rounded-2xl text-xl font-bold text-slate-700 bg-slate-100">
             {initials}
           </AvatarFallback>
         </Avatar>
@@ -83,7 +83,7 @@ export default function PhotoUpload({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity"
           title="Change Photo"
         >
           <Camera className="h-6 w-6" />
