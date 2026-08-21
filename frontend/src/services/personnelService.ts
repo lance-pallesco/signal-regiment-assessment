@@ -20,16 +20,22 @@ export const personnelService = {
     return response.data.data;
   },
 
-  async create(formData: FormData): Promise<Personnel> {
-    const response = await api.post<ApiResponse<Personnel>>('/api/personnel', formData);
+  async create(data: FormData | Record<string, unknown>): Promise<Personnel> {
+    const response = await api.post<ApiResponse<Personnel>>('/api/personnel', data);
     return response.data.data;
   },
 
-  async update(id: number | string, formData: FormData): Promise<Personnel> {
-    // For PHP multipart form data handling on update, we can use POST with _method=PUT
-    formData.append('_method', 'PUT');
-    const response = await api.post<ApiResponse<Personnel>>(`/api/personnel/${id}`, formData);
-    return response.data.data;
+  async update(id: number | string, data: FormData | Record<string, unknown>): Promise<Personnel> {
+    if (data instanceof FormData) {
+      if (!data.has('_method')) {
+        data.append('_method', 'PUT');
+      }
+      const response = await api.post<ApiResponse<Personnel>>(`/api/personnel/${id}`, data);
+      return response.data.data;
+    } else {
+      const response = await api.put<ApiResponse<Personnel>>(`/api/personnel/${id}`, data);
+      return response.data.data;
+    }
   },
 
   async delete(id: number | string): Promise<void> {

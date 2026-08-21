@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 
 interface PersonnelFormProps {
   initialData?: Partial<Personnel>;
-  onSubmit: (formData: FormData) => Promise<void>;
+  onSubmit: (payload: FormData | Record<string, unknown>) => Promise<void>;
   isSubmitting: boolean;
   submitLabel?: string;
 }
@@ -98,14 +98,23 @@ export default function PersonnelForm({
       return;
     }
 
-    const birthDateObj = new Date(birthday);
-    if (birthDateObj >= new Date()) {
-      toast.error('Validation Error', { description: 'Date of Birth must be in the past.' });
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (birthday >= todayStr) {
+      toast.error('Invalid Date of Birth', {
+        description: 'Date of birth must be a past date before today.',
+      });
       return;
     }
 
     if (!dateOfEnlistment) {
       toast.error('Validation Error', { description: 'Date of Enlistment is required.' });
+      return;
+    }
+
+    if (dateOfEnlistment > todayStr) {
+      toast.error('Invalid Enlistment Date', {
+        description: 'Date of enlistment cannot be in the future.',
+      });
       return;
     }
 
@@ -124,30 +133,50 @@ export default function PersonnelForm({
       return;
     }
 
-    // Prepare FormData payload
-    const formData = new FormData();
-    formData.append('serial_number', serialNumber.trim());
-    formData.append('first_name', firstName.trim());
-    formData.append('last_name', lastName.trim());
-    formData.append('rank', rank);
-    formData.append('birthday', birthday);
-    formData.append('gender', gender);
-    formData.append('civil_status', civilStatus);
-    formData.append('phone', phone.trim());
-    if (email.trim()) {
-      formData.append('email', email.trim());
-    }
-    formData.append('address', address.trim());
-    formData.append('unit', unit);
-    formData.append('position', position.trim());
-    formData.append('date_of_enlistment', dateOfEnlistment);
-    formData.append('status', status);
-
+    // Build payload: use FormData only if a photo file was selected, otherwise use clean JSON object
     if (photoFile) {
+      const formData = new FormData();
+      formData.append('serial_number', serialNumber.trim());
+      formData.append('first_name', firstName.trim());
+      formData.append('last_name', lastName.trim());
+      formData.append('rank', rank);
+      formData.append('birthday', birthday);
+      formData.append('gender', gender);
+      formData.append('civil_status', civilStatus);
+      formData.append('phone', phone.trim());
+      if (email.trim()) {
+        formData.append('email', email.trim());
+      }
+      formData.append('address', address.trim());
+      formData.append('unit', unit);
+      formData.append('position', position.trim());
+      formData.append('date_of_enlistment', dateOfEnlistment);
+      formData.append('status', status);
       formData.append('photo', photoFile);
-    }
 
-    await onSubmit(formData);
+      await onSubmit(formData);
+    } else {
+      const jsonPayload: Record<string, unknown> = {
+        serial_number: serialNumber.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        rank,
+        birthday,
+        gender,
+        civil_status: civilStatus,
+        phone: phone.trim(),
+        address: address.trim(),
+        unit,
+        position: position.trim(),
+        date_of_enlistment: dateOfEnlistment,
+        status,
+      };
+      if (email.trim()) {
+        jsonPayload.email = email.trim();
+      }
+
+      await onSubmit(jsonPayload);
+    }
   };
 
   const getInitials = () => {

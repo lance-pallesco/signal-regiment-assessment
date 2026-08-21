@@ -34,11 +34,11 @@ export default function PersonnelEditPage() {
     fetchRecord();
   }, [id, navigate]);
 
-  const handleUpdate = async (formData: FormData) => {
+  const handleUpdate = async (payload: FormData | Record<string, unknown>) => {
     if (!id) return;
     setIsSubmitting(true);
     try {
-      const updated = await personnelService.update(id, formData);
+      const updated = await personnelService.update(id, payload);
       toast.success('Personnel Record Updated', {
         description: `Changes for ${updated.rank} ${updated.first_name} ${updated.last_name} (${updated.serial_number}) saved.`,
       });
@@ -47,8 +47,11 @@ export default function PersonnelEditPage() {
       const error = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       let description = 'Unable to update personnel record.';
       if (error.response?.data?.errors) {
-        const firstError = Object.values(error.response.data.errors)[0];
-        if (firstError?.[0]) description = firstError[0];
+        const errorEntries = Object.entries(error.response.data.errors);
+        if (errorEntries.length > 0) {
+          const [, messages] = errorEntries[0];
+          if (messages?.[0]) description = messages[0];
+        }
       } else if (error.response?.data?.message) {
         description = error.response.data.message;
       }
