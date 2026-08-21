@@ -81,37 +81,22 @@ export default function PersonnelForm({
   // Maximum selectable date is today (disables future dates in native date picker)
   const today = new Date().toISOString().split('T')[0];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Client-side validations
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error('Validation Error', { description: 'First and Last names are required.' });
-      return;
-    }
+    // Declarative client-side validation
+    const rules: [boolean, string][] = [
+      [!firstName.trim() || !lastName.trim(), 'First and Last names are required.'],
+      [!birthday, 'Date of Birth is required.'],
+      [!dateOfEnlistment, 'Date of Enlistment is required.'],
+      [!phone.trim(), 'Contact phone number is required.'],
+      [!address.trim(), 'Station or residential address is required.'],
+      [!position.trim(), 'Designated position/role is required.'],
+    ];
 
-    if (!birthday) {
-      toast.error('Validation Error', { description: 'Date of Birth is required.' });
-      return;
-    }
-
-    if (!dateOfEnlistment) {
-      toast.error('Validation Error', { description: 'Date of Enlistment is required.' });
-      return;
-    }
-
-    if (!phone.trim()) {
-      toast.error('Validation Error', { description: 'Contact phone number is required.' });
-      return;
-    }
-
-    if (!address.trim()) {
-      toast.error('Validation Error', { description: 'Station or residential address is required.' });
-      return;
-    }
-
-    if (!position.trim()) {
-      toast.error('Validation Error', { description: 'Designated position/role is required.' });
+    const error = rules.find(([isInvalid]) => isInvalid);
+    if (error) {
+      toast.error('Validation Error', { description: error[1] });
       return;
     }
 

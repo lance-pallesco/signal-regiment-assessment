@@ -152,7 +152,7 @@ export default function PersonnelTable({
               personnel.map((person) => (
                 <TableRow key={person.id} className="border-slate-100 hover:bg-slate-50/70 transition-colors">
                   {/* Serial Number */}
-                  <TableCell className="pl-6 py-3.5 font-mono text-xs font-bold text-slate-700">
+                  <TableCell className="pl-6 py-3.5 text-xs font-bold text-slate-700">
                     {person.serial_number}
                   </TableCell>
 

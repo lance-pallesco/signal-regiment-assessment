@@ -4,26 +4,12 @@ import type { Personnel, PersonnelStatus } from '../../types';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogFooter,
 } from '../ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import {
-  Shield,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  Briefcase,
-  Building,
-  User,
-  Heart,
-  Edit3,
-} from 'lucide-react';
 
 interface PersonnelDetailModalProps {
   personnel: Personnel | null;
@@ -65,13 +51,17 @@ export default function PersonnelDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl bg-white border-slate-200 p-0 overflow-hidden rounded-2xl shadow-2xl">
-        {/* Military Dossier Header */}
+        {/* Header */}
         <div className="bg-[#064e3b] p-6 text-white relative">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border-2 border-white/80 shadow-md bg-emerald-800 text-white">
+              <Avatar className="h-16 w-16 border-2 border-white/80 shadow-md bg-emerald-800 text-white shrink-0">
                 {personnel.photo_url && (
-                  <AvatarImage src={personnel.photo_url} alt={personnel.first_name} />
+                  <AvatarImage
+                    src={personnel.photo_url}
+                    alt={`${personnel.first_name} ${personnel.last_name}`}
+                    className="h-full w-full object-cover object-center"
+                  />
                 )}
                 <AvatarFallback className="text-lg font-bold text-white bg-emerald-900">
                   {getInitials(personnel.first_name, personnel.last_name)}
@@ -84,7 +74,7 @@ export default function PersonnelDetailModal({
                   </span>
                   <Badge
                     variant="outline"
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-white ${statusBadgeStyles[personnel.status]}`}
+                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-white ${statusBadgeStyles[personnel.status]}`}
                   >
                     {personnel.status}
                   </Badge>
@@ -100,40 +90,35 @@ export default function PersonnelDetailModal({
           </div>
         </div>
 
-        {/* Dossier Body Content */}
+        {/* Body Content */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-          {/* Service Assignment */}
+          {/* Military Assignment */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-emerald-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               Military Assignment
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Assigned Unit</p>
-                <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
-                  <Building className="h-4 w-4 text-slate-400" />
+                <p className="text-xs text-slate-500 font-medium">Assigned Unit</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {personnel.unit}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Position / Role</p>
-                <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
-                  <Briefcase className="h-4 w-4 text-slate-400" />
+                <p className="text-xs text-slate-500 font-medium">Position / Role</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {personnel.position}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Date of Enlistment</p>
-                <p className="text-sm font-semibold text-slate-800 flex items-center gap-1.5 mt-0.5">
-                  <Calendar className="h-4 w-4 text-slate-400" />
+                <p className="text-xs text-slate-500 font-medium">Date of Enlistment</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {formatDate(personnel.date_of_enlistment)}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Service Rank</p>
-                <p className="text-sm font-semibold text-slate-800 flex items-center gap-1.5 mt-0.5">
-                  <Shield className="h-4 w-4 text-emerald-600" />
+                <p className="text-xs text-slate-500 font-medium">Service Rank</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {personnel.rank}
                 </p>
               </div>
@@ -142,29 +127,27 @@ export default function PersonnelDetailModal({
 
           <Separator className="bg-slate-100" />
 
-          {/* Personal Info */}
+          {/* Personal Demographics */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-              <User className="h-3.5 w-3.5 text-emerald-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               Personal Demographics
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Date of Birth</p>
-                <p className="text-sm font-semibold text-slate-800 mt-0.5">
+                <p className="text-xs text-slate-500 font-medium">Date of Birth</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {formatDate(personnel.birthday)}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Gender</p>
-                <p className="text-sm font-semibold text-slate-800 mt-0.5">
+                <p className="text-xs text-slate-500 font-medium">Gender</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {personnel.gender}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Civil Status</p>
-                <p className="text-sm font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <Heart className="h-3.5 w-3.5 text-slate-400" />
+                <p className="text-xs text-slate-500 font-medium">Civil Status</p>
+                <p className="text-sm font-semibold text-slate-900 mt-1">
                   {personnel.civil_status}
                 </p>
               </div>
@@ -173,31 +156,29 @@ export default function PersonnelDetailModal({
 
           <Separator className="bg-slate-100" />
 
-          {/* Contact Details */}
+          {/* Contact Information */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 text-emerald-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               Contact Information
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[11px] text-slate-500 font-medium">Mobile Phone</p>
-                  <p className="text-sm font-semibold text-slate-900 font-mono mt-0.5">
+                  <p className="text-xs text-slate-500 font-medium">Mobile Phone</p>
+                  <p className="text-sm font-semibold text-slate-900 mt-1">
                     {personnel.phone}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-slate-500 font-medium">Military Email</p>
-                  <p className="text-sm font-semibold text-slate-900 font-mono mt-0.5">
+                  <p className="text-xs text-slate-500 font-medium">Military Email</p>
+                  <p className="text-sm font-semibold text-slate-900 mt-1">
                     {personnel.email || 'Not Provided'}
                   </p>
                 </div>
               </div>
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Station Address</p>
-                <p className="text-sm text-slate-700 flex items-start gap-1.5 mt-0.5">
-                  <MapPin className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-slate-500 font-medium">Station Address</p>
+                <p className="text-sm font-normal text-slate-700 mt-1 leading-relaxed">
                   {personnel.address}
                 </p>
               </div>
@@ -205,19 +186,18 @@ export default function PersonnelDetailModal({
           </div>
         </div>
 
-        {/* Dialog Footer */}
-        <DialogFooter className="border-t border-slate-100 p-4 bg-slate-50 flex items-center justify-between sm:justify-between">
+        {/* Footer */}
+        <DialogFooter className="border-t border-slate-100 p-4 bg-slate-50/80 flex items-center justify-between sm:justify-between">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="text-xs border-slate-200"
+            className="text-xs font-semibold border-slate-200 text-slate-700 hover:bg-white"
           >
             Close
           </Button>
           <NavLink to={`/personnel/${personnel.id}/edit`}>
-            <Button className="bg-[#064e3b] hover:bg-[#065f46] text-white text-xs font-semibold gap-1.5">
-              <Edit3 className="h-3.5 w-3.5" />
+            <Button className="bg-[#064e3b] hover:bg-[#065f46] text-white text-xs font-semibold px-4 rounded-lg">
               Edit Record
             </Button>
           </NavLink>

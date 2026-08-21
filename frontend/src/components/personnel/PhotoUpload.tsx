@@ -94,7 +94,7 @@ export default function PhotoUpload({
       <div className="flex-1 text-center sm:text-left space-y-1.5">
         <h4 className="text-sm font-bold text-slate-800 flex items-center justify-center sm:justify-start gap-1.5">
           <ImageIcon className="h-4 w-4 text-emerald-600" />
-          Official Military Photo (Optional)
+          Official Photo (Optional)
         </h4>
         <p className="text-xs text-slate-500">
           Upload standard military portrait in JPG, PNG, or WebP (max. 2MB).

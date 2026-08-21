@@ -26,21 +26,17 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate, from]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Client-side validation
-    if (!email.trim()) {
-      toast.error('Validation Error', {
-        description: 'Please enter your username or email address.',
-      });
-      return;
-    }
+    const validationError = !email.trim()
+      ? 'Please enter your username or email address.'
+      : !password
+        ? 'Please enter your password.'
+        : null;
 
-    if (!password) {
-      toast.error('Validation Error', {
-        description: 'Please enter your password.',
-      });
+    if (validationError) {
+      toast.error('Validation Error', { description: validationError });
       return;
     }
 
