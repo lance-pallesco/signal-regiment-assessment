@@ -10,15 +10,15 @@ A full-stack, enterprise-grade personnel management and analytics platform engin
 signal-regiment-assessment/
 ├── backend/               # Laravel 11 RESTful API Application
 │   ├── app/
-│   │   ├── Http/Controllers/    # Auth, Personnel, and Dashboard Controllers
-│   │   ├── Http/Requests/       # FormRequest validation with rank enums & unique constraints
-│   │   ├── Models/              # Personnel & User Eloquent Models with query scopes
-│   │   └── Services/            # Isolated business logic layer (PersonnelService, DashboardService)
+│   │   ├── Http/Controllers/    # Auth, Personnel, Dashboard, and Rank Controllers
+│   │   ├── Http/Requests/       # FormRequest validation with dynamic database rules & unique checks
+│   │   ├── Models/              # Personnel, Rank, and User Eloquent Models with query scopes
+│   │   └── Services/            # Isolated business logic layer (PersonnelService, DashboardService, AuthService)
 │   ├── database/
-│   │   ├── factories/           # Model factories for realistic military data generation
-│   │   ├── migrations/          # PostgreSQL schema definitions with composite indexing
-│   │   └── seeders/             # Database seeders (demo admin + 20 realistic personnel)
-│   └── tests/Feature/           # Pest / PHPUnit test suite (24 feature tests, 215 assertions)
+│   │   ├── factories/           # Model factories with dynamic Rank model queries
+│   │   ├── migrations/          # PostgreSQL schema definitions (personnel, ranks, users, tokens)
+│   │   └── seeders/             # Database seeders (Admin, 16 Military Ranks, 20 Realistic Personnel)
+│   └── tests/Feature/           # Pest / PHPUnit test suite (27 feature tests, 303 assertions)
 │
 ├── frontend/              # React 19 + TypeScript (Vite) Single Page Application
 │   ├── src/
@@ -29,10 +29,11 @@ signal-regiment-assessment/
 │   │   │   ├── personnel/       # DataTable, Filter toolbar, Detail modal, and Photo upload
 │   │   │   └── ui/              # shadcn/ui components (Card, Button, Dialog, Sonner Toaster, Select)
 │   │   ├── contexts/            # In-memory AuthContext for XSS-safe session persistence
-│   │   ├── hooks/               # Custom hooks (useAuth, usePersonnel, useDashboard)
+│   │   ├── hooks/               # Custom hooks (useAuth, usePersonnel, useDashboard, useRanks)
 │   │   ├── pages/               # Views (LoginPage, DashboardPage, PersonnelListPage, Create/Edit)
 │   │   ├── routes/              # React Router v7 with ProtectedRoute auth guards
-│   │   └── services/            # Frontend API service layer (authService, personnelService, dashboardService)
+│   │   └── services/            # Frontend API services (authService, personnelService, rankService, dashboardService)
+│   └── types/                   # Unified TypeScript definitions and interfaces
 └── README.md
 ```
 
@@ -47,7 +48,7 @@ signal-regiment-assessment/
 | **Backend Framework** | Laravel 11 (PHP 8.4) | Enterprise REST API, Eloquent ORM, robust middleware & validation |
 | **Authentication**    | Laravel Sanctum | Pure `HttpOnly` SameSite Cookie SPA authentication (immune to XSS token theft) |
 | **Database**          | PostgreSQL 15+ | Relational schema with composite indexes (`['status', 'rank', 'unit']`, `['last_name', 'first_name']`) |
-| **Testing**           | Pest PHP & PHPUnit | 24 feature tests covering Auth, CRUD, validation, and analytics |
+| **Testing**           | Pest PHP & PHPUnit | 27 feature tests covering Auth, CRUD, validation, ranks, and analytics |
 
 ---
 
@@ -148,11 +149,37 @@ CREATE DATABASE pims_db;
 
 The database seeders provision a default System Administrator account for immediate evaluation:
 
-| Role | Email Address | Password | Quick Login Action |
+| Role | Email Address | Password | Description |
 | :--- | :--- | :--- | :--- |
-| **Battalion S1 Admin** | `admin@signal.mil` | `password` | Click **"Auto-fill Demo Admin"** badge on Login page |
+| **System Administrator** | `admin@admin.com` | `password` | Full administrative access to personnel records and analytics |
 
 ---
+
+## 🎖️ Key Features & Recent Architecture Highlights
+
+### 1. Database-Seeded Military Ranks
+- All 16 official Philippine Army Signal ranks (`PVT` to `MG`) are stored in the database (`ranks` table) with military hierarchical seniority (`order: 1` to `16`) and branch categories (`Enlisted`, `Non-Commissioned Officer`, `Commissioned Officer`, `General Officer`).
+- Dropdowns and filters in the frontend dynamically consume `GET /api/ranks` via the `useRanks()` hook without hardcoded arrays.
+- Validation dynamically validates rank codes via `exists:ranks,code`.
+
+### 2. Automated Military Serial Number Generator
+- Pattern: **`SIG-YYYY-XXXX`** (e.g. `SIG-2026-0001`, `SIG-2026-0021`).
+- Generated automatically on the backend upon enlistment to guarantee chronological consistency and uniqueness.
+- Form inputs for serial numbers are omitted from the create/edit UI for a clean user experience.
+
+### 3. Datepicker Future Date Constraints
+- Both **Date of Birth** and **Date of Enlistment** calendar pickers enforce `max={today}`, preventing future dates from being selected.
+
+### 4. Pure HttpOnly Cookie SPA Authentication
+- Authentication uses encrypted `HttpOnly` SameSite session cookies via Laravel Sanctum (`withCredentials: true`), completely removing token storage from `localStorage` to eliminate XSS risks.
+
+### 5. Clean & Minimalist UI Design
+- Pure white card toast feedback with color-coded status iconography.
+- Subtle neutral slate rounded-square avatar initials (`rounded-xl` / `rounded-2xl`) for personnel without uploaded portraits.
+- Clean icon-free military dossier modal layout with structured typography.
+
+---
+
 ## REST API Endpoint Reference
 
 All endpoints (except login and CSRF initialization) require Sanctum authentication:
@@ -163,6 +190,8 @@ All endpoints (except login and CSRF initialization) require Sanctum authenticat
 | `POST` | `/api/auth/login` | Authenticate user credentials & start session | No |
 | `POST` | `/api/auth/logout` | Terminate session & clear cookies | Yes |
 | `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes |
+| `GET` | `/api/ranks` | List all military ranks ordered by hierarchical seniority | Yes |
+| `GET` | `/api/personnel/next-serial` | Expose next auto-generated military serial number | Yes |
 | `GET` | `/api/personnel` | Paginated personnel list with search & filters | Yes |
 | `POST` | `/api/personnel` | Enlist new personnel with optional photo | Yes |
 | `GET` | `/api/personnel/{id}` | Retrieve individual personnel military dossier | Yes |
@@ -186,12 +215,13 @@ php artisan test
 ### Test Suite Summary:
 - **`AuthTest.php`**: Validates login lifecycle, invalid credentials handling, session checks, and logout.
 - **`PersonnelCrudTest.php`**: Validates pagination, status/rank/unit filtering, full-text search, create with file upload, update, and deletion.
-- **`PersonnelValidationTest.php`**: Validates unique serial number rules, required field constraints, rank enum whitelist, birthday boundaries, and photo mime/size checks.
+- **`PersonnelValidationTest.php`**: Validates unique serial number rules, required field constraints, dynamic rank database checks, birthday boundaries, and photo mime/size checks.
 - **`DashboardTest.php`**: Validates metric aggregations and chart dataset structures.
+- **`RankTest.php`**: Validates `GET /api/ranks` seniority ordering and authentication guard.
 
 ```
-Tests:    24 passed (215 assertions)
-Duration: 0.90s
+Tests:    27 passed (303 assertions)
+Duration: 1.15s
 Status:   100% Passed
 ```
 
@@ -200,5 +230,3 @@ Status:   100% Passed
 cd frontend
 npm run build
 ```
-
----

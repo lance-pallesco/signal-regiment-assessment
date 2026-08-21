@@ -69,6 +69,7 @@ export default function PersonnelForm({
       setRank(ranks[0].code);
     }
   }, [ranks, rank]);
+
   const [birthday, setBirthday] = useState(initialData?.birthday || '');
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'Male');
   const [civilStatus, setCivilStatus] = useState<CivilStatus>(initialData?.civil_status || 'Single');
@@ -87,14 +88,36 @@ export default function PersonnelForm({
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Declarative client-side validation
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    const trimmedPhone = phone.trim();
+    const trimmedEmail = email.trim();
+    const trimmedAddress = address.trim();
+    const trimmedPosition = position.trim();
+
+    // Check age logic
+    const birthDateObj = birthday ? new Date(birthday) : null;
+    const enlistDateObj = dateOfEnlistment ? new Date(dateOfEnlistment) : null;
+    const isEnlistBeforeBirth = Boolean(birthDateObj && enlistDateObj && enlistDateObj <= birthDateObj);
+    const isUnderage = Boolean(
+      birthDateObj &&
+      enlistDateObj &&
+      ((enlistDateObj.getTime() - birthDateObj.getTime()) / (1000 * 60 * 60 * 24 * 365.25)) < 18
+    );
+
+    // Declarative client-side validation rules
     const rules: [boolean, string][] = [
-      [!firstName.trim() || !lastName.trim(), 'First and Last names are required.'],
+      [!trimmedFirst || trimmedFirst.length < 2, 'First Name must be at least 2 characters.'],
+      [!trimmedLast || trimmedLast.length < 2, 'Last Name must be at least 2 characters.'],
       [!birthday, 'Date of Birth is required.'],
       [!dateOfEnlistment, 'Date of Enlistment is required.'],
-      [!phone.trim(), 'Contact phone number is required.'],
-      [!address.trim(), 'Station or residential address is required.'],
-      [!position.trim(), 'Designated position/role is required.'],
+      [isEnlistBeforeBirth, 'Date of Enlistment must be after Date of Birth.'],
+      [isUnderage, 'Personnel must be at least 18 years old at the time of enlistment.'],
+      [!trimmedPhone, 'Contact phone number is required.'],
+      [!/^[0-9+]{7,15}$/.test(trimmedPhone), 'Contact phone number must be numeric (7 to 15 digits).'],
+      [Boolean(trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)), 'Please enter a valid military email address (e.g. jdelacruz@signal.mil).'],
+      [!trimmedAddress || trimmedAddress.length < 5, 'Station or residential address must be at least 5 characters.'],
+      [!trimmedPosition || trimmedPosition.length < 2, 'Designated position/role must be at least 2 characters.'],
     ];
 
     const error = rules.find(([isInvalid]) => isInvalid);
@@ -108,19 +131,19 @@ export default function PersonnelForm({
     if (initialData?.serial_number) {
       formData.append('serial_number', initialData.serial_number);
     }
-    formData.append('first_name', firstName.trim());
-    formData.append('last_name', lastName.trim());
+    formData.append('first_name', trimmedFirst);
+    formData.append('last_name', trimmedLast);
     formData.append('rank', rank);
     formData.append('birthday', birthday);
     formData.append('gender', gender);
     formData.append('civil_status', civilStatus);
-    formData.append('phone', phone.trim());
-    if (email.trim()) {
-      formData.append('email', email.trim());
+    formData.append('phone', trimmedPhone);
+    if (trimmedEmail) {
+      formData.append('email', trimmedEmail);
     }
-    formData.append('address', address.trim());
+    formData.append('address', trimmedAddress);
     formData.append('unit', unit);
-    formData.append('position', position.trim());
+    formData.append('position', trimmedPosition);
     formData.append('date_of_enlistment', dateOfEnlistment);
     formData.append('status', status);
 
@@ -377,7 +400,7 @@ export default function PersonnelForm({
           </div>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {/* Phone */}
+            {/* Phone (Enforced Numeric Input) */}
             <div>
               <Label className="text-xs font-semibold text-slate-700">
                 Contact Phone <span className="text-rose-500">*</span>
@@ -385,10 +408,12 @@ export default function PersonnelForm({
               <div className="relative mt-1.5">
                 <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   placeholder="e.g. 09171234567"
+                  maxLength={15}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, ''))}
                   disabled={isSubmitting}
                   className="h-10 pl-10 border-slate-200 bg-slate-50/50 text-sm font-mono focus-visible:ring-emerald-600/30"
                   required
